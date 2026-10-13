@@ -1,0 +1,122 @@
+name: Publish to CurseForge
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Git tag to build and publish (for example v1.0.0)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: curseforge-${{ github.repository }}-${{ github.event.release.tag_name || github.event.inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || github.event.inputs.tag }}
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Prepare release version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name || github.event.inputs.tag }}
+        run: |
+          set -euo pipefail
+          version="${RELEASE_TAG#v}"
+          if [[ -z "$version" ]]; then
+            echo "Release tag must contain a version." >&2
+            exit 1
+          fi
+          echo "CURSEFORGE_VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Validate CurseForge configuration
+        env:
+          CURSEFORGE_PROJECT_ID: ${{ vars.CURSEFORGE_PROJECT_ID }}
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$CURSEFORGE_PROJECT_ID" ]]; then
+            echo "Repository variable CURSEFORGE_PROJECT_ID is required." >&2
+            exit 1
+          fi
+          if [[ -z "$CURSEFORGE_TOKEN" ]]; then
+            echo "Repository secret CURSEFORGE_TOKEN is required." >&2
+            exit 1
+          fi
+
+      - name: Build mod
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew build --no-daemon
+
+      - name: Verify release artifact
+        run: |
+          set -euo pipefail
+          expected="item-slot-forge-1.20.1-${CURSEFORGE_VERSION}.jar"
+          if [[ ! -f "build/libs/$expected" ]]; then
+            echo "Expected artifact build/libs/$expected was not produced." >&2
+            printf 'Available JARs:\n'
+            ls -1 build/libs/*.jar 2>/dev/null || true
+            exit 1
+          fi
+          echo "CURSEFORGE_FILE=build/libs/$expected" >> "$GITHUB_ENV"
+
+      - name: Prepare release changelog
+        run: |
+          set -euo pipefail
+          mkdir -p build
+          if [[ -f CHANGELOG.md ]]; then
+            awk -v version="$CURSEFORGE_VERSION" '
+              /^##[[:space:]]+/ {
+                heading = $2
+                sub(/^\[/, "", heading)
+                sub(/\].*$/, "", heading)
+                if (found && heading != version) exit
+                if (heading == version) found = 1
+              }
+              found { print }
+            ' CHANGELOG.md > build/curseforge-changelog.md
+            if [[ ! -s build/curseforge-changelog.md ]]; then
+              echo "No non-empty CHANGELOG.md section found for version $CURSEFORGE_VERSION." >&2
+              exit 1
+            fi
+          elif [[ "$CURSEFORGE_VERSION" == "1.0.0" ]]; then
+            printf 'Initial release of Item Slot.\n' > build/curseforge-changelog.md
+          else
+            echo "CHANGELOG.md is required for releases after 1.0.0." >&2
+            exit 1
+          fi
+
+      - name: Publish to CurseForge
+        uses: Kira-NT/mc-publish@v3
+        with:
+          curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          files: ${{ env.CURSEFORGE_FILE }}
+          version: ${{ env.CURSEFORGE_VERSION }}
+          name: item-slot-forge-1.20.1-${{ env.CURSEFORGE_VERSION }}
+          version-type: release
+          changelog-file: build/curseforge-changelog.md
+          loaders: forge
+          game-versions: '1.20.1'
+          java: '17'

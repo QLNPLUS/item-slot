@@ -1,25 +1,25 @@
 # Item Slot
 
-A lightweight card-slot framework for Minecraft items. Add card slots to eligible weapons, tools, and armor, then manage the installed cards through an in-game GUI.
+A configurable item-slot framework for Minecraft. Add up to **8 NBT-backed slots** to eligible items and manage their contents through an in-game GUI.
 
-> **Important:** Item Slot does not add card items or apply card effects by itself. You’ll need registered card items from another mod, plus a compatible mod or script if you want those cards to change gameplay.
+> **Item Slot manages slots and item storage; it does not add new items or apply gameplay effects.** Slot contents are not limited to cards: any registered Minecraft item can be used when it matches the configured item tag.
 
 ## Features
 
-- Press **G** while holding an eligible item to open its card-slot GUI. The key can be changed in **Options → Controls**.
-- Supports up to **8 card slots** per item. The default unlocked slot count is **0**; configure it globally or per item, or set the item’s root-level integer NBT tag `slotcount` (which takes priority over the config).
-- Accepts items from a configurable item tag. The default is `item_slot:cards`. Add existing card item IDs to this tag with a datapack, or configure Item Slot to use a tag supplied by your card mod.
-- Saves installed card item IDs and their item data on the host item.
-- Prevents duplicate card IDs on the same item. Optionally define conflict groups in the config as comma-separated item IDs; conflicting cards are highlighted in the GUI.
-- Provides Forge events for card insertion, removal, and insertion checks so other mods or scripts can add their own behavior.
-- By default, the GUI can be opened for items in `#forge:tools` and `#forge:armors`. The whitelist and blacklist are configurable.
+- Press **G** while holding an eligible host item to open its slots. Change the key in **Options → Controls**.
+- Supports up to **8 slots** per host item. The default unlocked count is **0**; configure it globally or per item, or set the host item's root-level integer NBT tag `slotcount` (this overrides the config).
+- Choose slot contents with a configurable item tag. The default tag is `item_slot:cards`; despite its name, it can contain any items. Add existing item IDs to the tag with a datapack, or point `cardTag` to a tag already provided by another mod.
+- Stores inserted item IDs and their item data on the host item.
+- Prevents duplicate item IDs on the same host item. Optionally configure conflict groups as comma-separated item IDs; conflicting items are highlighted in the GUI.
+- Provides Forge events for insertion, removal, and insertion checks so other mods or scripts can add behavior.
+- The host-item filter is configurable by exact item ID, namespace wildcard, or item tag. By default, items in `#forge:tools` and `#forge:armors` can open the GUI.
 
 ## Getting Started
 
-1. Install a mod that provides the card items you want to use. Item Slot is the slot and storage framework; it does not create cards.
-2. Make those existing items valid cards by adding them to `item_slot:cards` with a datapack, or set the `cardTag` config option to a tag those items already belong to.
-3. Set the number of unlocked slots with `defaultSlots` or `slotOverrides`, or set `slotcount` on an individual item.
-4. Hold the item and press **G**. Insert and remove cards in the GUI. Card effects, if desired, must be provided by other mods or scripts.
+1. Choose any existing registered items to use as slot contents. Add their IDs to `item_slot:cards` with a datapack, or set `cardTag` to a tag those items already belong to.
+2. Configure which items can host slots with the whitelist/blacklist settings. The defaults allow Forge tools and armor.
+3. Set the unlocked slot count with `defaultSlots` or `slotOverrides`, or set `slotcount` on an individual host item.
+4. Hold the host item and press **G**. Inserted items are stored by Item Slot; their gameplay effects, if any, must be supplied by another mod or script.
 
 ## Compatibility
 
@@ -30,26 +30,26 @@ A lightweight card-slot framework for Minecraft items. Add card slots to eligibl
 
 # 物品插槽（Item Slot）
 
-一个轻量的卡片插槽框架，可为符合条件的武器、工具和盔甲添加卡槽，并通过游戏内界面管理已装入的卡片。
+一个可配置的 Minecraft 物品插槽框架。可为符合条件的物品添加最多 **8 个由 NBT 保存的插槽**，并通过游戏内界面管理槽内物品。
 
-> **注意：** Item Slot 本身不会添加卡片物品，也不会自动赋予卡片任何效果。你需要安装提供卡片物品的其他模组；若希望卡片改变游戏玩法，还需要兼容的模组或脚本实现相应效果。
+> **Item Slot 负责管理插槽和物品存储，不会添加新物品，也不会自动赋予槽内物品任何效果。** 槽内物品不限于卡片：只要符合配置的物品标签，任何已注册的 Minecraft 物品都可以放入。
 
 ## 功能特色
 
-- 手持符合条件的物品时按 **G** 打开卡槽界面；按键可在 **选项 → 控制** 中修改。
-- 每件物品最多支持 **8 个卡槽**。默认解锁数量为 **0**；可通过配置统一或按物品设置，也可在物品根级 NBT 中设置整数标签 `slotcount`（优先级高于配置）。
-- 通过可配置的物品标签识别卡片，默认标签为 `item_slot:cards`。可用数据包将已有卡片物品加入该标签，或将 `cardTag` 配置为卡片模组提供的标签。
-- 已装入卡片的物品 ID 和物品数据会保存在承载卡槽的物品上。
-- 阻止同一物品中安装重复的卡片 ID；也可在配置中以逗号分隔的物品 ID 设置冲突组，并在界面中高亮冲突卡片。
-- 提供卡片装入、取出和装入前检查的 Forge 事件，供其他模组或脚本扩展行为。
-- 默认允许对 `#forge:tools` 和 `#forge:armors` 中的物品打开界面；白名单与黑名单均可配置。
+- 手持符合条件的宿主物品时按 **G** 打开插槽界面；按键可在 **选项 → 控制** 中修改。
+- 每件宿主物品最多支持 **8 个插槽**。默认解锁数量为 **0**；可通过配置统一或按物品设置，也可在宿主物品根级 NBT 中设置整数标签 `slotcount`（优先级高于配置）。
+- 通过可配置的物品标签选择可放入插槽的物品。默认标签为 `item_slot:cards`，但标签名称不限制内容类型；可用数据包将已有物品 ID 加入该标签，或将 `cardTag` 指向其他模组提供的标签。
+- 槽内物品的 ID 和物品数据会保存在宿主物品上。
+- 阻止同一宿主物品中放入重复的物品 ID；也可用逗号分隔的物品 ID 配置冲突组，并在界面中高亮冲突物品。
+- 提供物品放入、取出和放入前检查的 Forge 事件，供其他模组或脚本扩展行为。
+- 宿主物品筛选支持精确物品 ID、命名空间通配符和物品标签。默认允许 `#forge:tools` 与 `#forge:armors` 中的物品打开界面。
 
 ## 快速开始
 
-1. 安装提供卡片物品的模组。Item Slot 只提供卡槽与存储框架，不会创建卡片。
-2. 使用数据包将已有卡片物品加入 `item_slot:cards`，或将 `cardTag` 配置为这些卡片已有的标签。
-3. 通过 `defaultSlots`、`slotOverrides` 配置解锁数量，或在单件物品上设置 `slotcount`。
-4. 手持物品并按 **G** 打开界面，随后即可装入或取出卡片。卡片效果需要由其他模组或脚本提供。
+1. 选择任意已注册物品作为槽内物品。使用数据包将其 ID 加入 `item_slot:cards`，或将 `cardTag` 配置为这些物品已有的标签。
+2. 通过白名单/黑名单配置允许承载插槽的物品；默认允许 Forge 工具和盔甲。
+3. 通过 `defaultSlots`、`slotOverrides` 配置解锁数量，或在单件宿主物品上设置 `slotcount`。
+4. 手持宿主物品并按 **G** 打开界面。Item Slot 负责存储槽内物品；其游戏效果（如有）需要由其他模组或脚本提供。
 
 ## 兼容性
 

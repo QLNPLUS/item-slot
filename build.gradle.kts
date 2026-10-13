@@ -6,7 +6,7 @@ plugins {
 
 version = "1.0.0"
 group = "com.itemslot"
-base.archivesName.set("item_slot")
+base.archivesName.set("item-slot-forge-1.20.1")
 
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 
