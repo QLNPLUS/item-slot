@@ -1,0 +1,34 @@
+modLoader = "javafml"
+loaderVersion = "[47,)"
+license = "MIT"
+
+[[mods]]
+modId = "item_slot"
+version = "1.0.0"
+displayName = "Item Slot"
+authors = ""
+description = '''
+Provides a GUI for managing cards slotted into weapons and armor via NBT.
+
+Configurable NBT key, card tag, item filter (whitelist/blacklist with ID, namespace, and tag support), and conflict group checking.
+
+Cards are items carrying the "item_slot:cards" item tag; add your card items to that tag from a datapack, or point the config at a tag you already have.
+
+Initial unlocked slots are configurable per item ID, namespace, or item tag; a "slotcount" NBT tag on the item overrides them at runtime.
+
+Default keybind: G (customizable in Controls settings).
+'''
+
+[[dependencies.item_slot]]
+modId = "forge"
+mandatory = true
+versionRange = "[47,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.item_slot]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.1,1.21)"
+ordering = "NONE"
+side = "BOTH"
